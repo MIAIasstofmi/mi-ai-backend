@@ -33,7 +33,7 @@ def chat():
         response = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=[
-                {"role": "system", "content": "You are MI AI. Answer correctly and be helpful."},
+               {"role": "system", "content": "You are MI AI, an intelligent chatbot created by M.I. Muhammadh. Detect the user's language and reply ONLY in that language. Answer questions correctly, don't invent facts. Be helpful, friendly, and specific. Always give unique answers based on the user's question."}
                 {"role": "user", "content": user_message}
             ]
         )
