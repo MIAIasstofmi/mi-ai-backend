@@ -1,15 +1,10 @@
 import os
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify, request
+from flask_cors import CORS
 from groq import Groq
 
 app = Flask(__name__)
-
-@app.after_request
-def add_cors(response):
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Methods'] = 'POST,GET,OPTIONS'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
-    return response
+CORS(app, resources={r"/*": {"origins": "*", "methods": ["GET","POST","OPTIONS"], "allow_headers": "*"}})
 
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
@@ -19,15 +14,13 @@ def home():
 
 @app.route("/chat", methods=["POST","OPTIONS"])
 def chat():
-    if request.method == "OPTIONS":
-        return "", 200
-    msg = request.get_json().get("message","")
+    msg = request.get_json().get("message","") if request.get_json() else ""
     if not msg:
         return jsonify({"reply":"Type something"})
     try:
         res = client.chat.completions.create(model="llama-3.3-70b-versatile", messages=[{"role":"system","content":"Answer helpfully"}, {"role":"user","content":msg}])
         return jsonify({"reply":res.choices[0].message.content})
-    except:
+    except Exception as e:
         return jsonify({"reply":"Error"}), 500
 
 if __name__ == "__main__":
