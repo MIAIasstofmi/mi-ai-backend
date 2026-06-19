@@ -1,26 +1,27 @@
 import os
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 from groq import Groq
 
 app = Flask(__name__)
-
-@app.after_request
-def add_cors(response):
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Methods'] = 'POST,GET,OPTIONS'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
-    return response
-
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
-@app.route("/")
+@app.route("/", methods=["GET","POST","OPTIONS"])
 def home():
-    return "MI AI Running"
+    resp = Response("MI AI Running")
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+    resp.headers['Access-Control-Allow-Methods'] = 'GET,POST,OPTIONS'
+    resp.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+    return resp
 
 @app.route("/chat", methods=["POST","OPTIONS"])
 def chat():
     if request.method == "OPTIONS":
-        return "", 200
+        resp = Response()
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        resp.headers['Access-Control-Allow-Methods'] = 'POST,GET,OPTIONS'
+        resp.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+        return resp
+    
     msg = request.get_json().get("message","")
     if not msg:
         return jsonify({"reply":"Type something"})
